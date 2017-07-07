@@ -4,10 +4,10 @@ clean:
 
 tests: 
 	npm run lint
-	mocha
+	mocha --timeout 5000
 
 prepublish: clean
 	babel src --out-dir dist
 
 watch:
-		mocha --require babel-register --watch --timeout 5000
+	mocha --require babel-register --watch --timeout 5000

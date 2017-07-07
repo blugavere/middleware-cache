@@ -15,6 +15,11 @@ const mock = {
   noop() { }
 };
 
+const middleware = (req, res, next) => {
+  res.locals.complete = true;
+  setTimeout(next, 500);
+};
+
 const repo = require('./repo');
 
 /**
@@ -52,12 +57,39 @@ describe('cache', () => {
     server.close();
   });
 
-  describe('caches', () => {
-    const middleware = (req, res, next) => {
-      res.locals.complete = true;
-      setTimeout(next, 500);
-    };
+  describe('redis', () => {
+    let redisRepo;
+    let redisCache;
+    before(done => {
+      redisRepo = new RedisRepository(redis, 'middleware');
+      redisCache = middlewareCache(redisRepo);
+      redisRepo.clear(done);
+    });
 
+    it('should cache in redis', function * () {
+      const options = {
+        selector: 'complete',
+        expire: 1
+      };
+
+      const cachedMiddleware = redisCache(options.selector, middleware, options);
+
+      app.get('/baz', cachedMiddleware, sendLocals);
+
+      let res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      expect(res.body.cache).toNotExist('repo should be clear at start');
+
+      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      expect(res.body.cache).toInclude('complete');
+
+      yield bluebird.delay(1000);
+
+      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      expect(res.body.cache).toNotExist('Cache should be clear.');
+    });
+  });
+
+  describe('in-memory', () => {
     it('should hit a regular api just fine (and cache)', function * () {
       const res = yield request.get('http://localhost:3000/foo').send();
       expect(res.body.name).toBe('foo');
@@ -144,38 +176,6 @@ describe('cache', () => {
 
       res = yield request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.fromCache).toNotExist();
-    });
-
-    describe('redis', () => {
-      let redisRepo;
-      let redisCache;
-      before(done => {
-        redisRepo = new RedisRepository(redis, 'middleware');
-        redisCache = middlewareCache(redisRepo);
-        redisRepo.clear(done);
-      });
-
-      it('should cache in redis', function * () {
-        const options = {
-          selector: 'complete',
-          expire: 1
-        };
-
-        const cachedMiddleware = redisCache(options.selector, middleware, options);
-
-        app.get('/baz', cachedMiddleware, sendLocals);
-
-        let res = yield request.get('http://localhost:3000/baz?foo=bar').send();
-        expect(res.body.cache).toNotExist('repo should be clear at start');
-
-        res = yield request.get('http://localhost:3000/baz?foo=bar').send();
-        expect(res.body.cache).toInclude('complete');
-
-        yield bluebird.delay(1000);
-
-        res = yield request.get('http://localhost:3000/baz?foo=bar').send();
-        expect(res.body.cache).toNotExist('Cache should be clear.');
-      });
     });
   });
 });

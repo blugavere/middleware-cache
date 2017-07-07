@@ -49,8 +49,8 @@ app.get('/foo', cachedMiddleware, (req, res) => res.send({}));
 
 [npm-image]: https://badge.fury.io/js/middleware-cache.svg
 [npm-url]: https://npmjs.org/package/middleware-cache
-[travis-image]: https://travis-ci.org/giddyinc/middleware-cache.svg?branch=master
-[travis-url]: https://travis-ci.org/giddyinc/middleware-cache
+[travis-image]: https://travis-ci.org/blugavere/middleware-cache.svg?branch=master
+[travis-url]: https://travis-ci.org/blugavere/middleware-cache
 [daviddm-image]: https://david-dm.org/blugavere/middleware-cache.svg?theme=shields.io
 [daviddm-url]: https://david-dm.org/blugavere/middleware-cache
 [coveralls-image]: https://coveralls.io/repos/blugavere/middleware-cache/badge.svg

@@ -1,6 +1,5 @@
-# middleware-cache [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
+# middleware-cache [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-# middleware-cache
 
 ```sh
 $ npm install --save middleware-cache
@@ -33,18 +32,26 @@ const middleware = (req, res, next) => {
 
 const options = {
   key: (req, res) => `orderHistory|${req.user._id}`
-  param: 'orderHistory',
-  expire: 1000 //todo
+  expire: 1000 // the repository implements this, so for redis it is in seconds
 };
 
-const cachedMiddleware = cache(middleware, options);
+const cachedMiddleware = cache('orderHistory', middleware, options);
 
 app.use(cachedMiddleware);
 app.get('/foo', cachedMiddleware, (req, res) => res.send({}));
 
 ```
 
+## Prior Art
+
+[leahciMic/cache-middleware](https://github.com/leahciMic/cache-middleware)
+
+
 [npm-image]: https://badge.fury.io/js/middleware-cache.svg
 [npm-url]: https://npmjs.org/package/middleware-cache
 [travis-image]: https://travis-ci.org/giddyinc/middleware-cache.svg?branch=master
 [travis-url]: https://travis-ci.org/giddyinc/middleware-cache
+[daviddm-image]: https://david-dm.org/blugavere/middleware-cache.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/blugavere/middleware-cache
+[coveralls-image]: https://coveralls.io/repos/blugavere/middleware-cache/badge.svg
+[coveralls-url]: https://coveralls.io/r/blugavere/middleware-cache

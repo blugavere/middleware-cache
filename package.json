@@ -18,6 +18,7 @@
     "cache"
   ],
   "devDependencies": {
+    "@repositories/redis": "0.0.2",
     "babel-cli": "6.24.1",
     "babel-core": "^6.11.4",
     "babel-eslint": "^6.1.2",
@@ -35,6 +36,7 @@
     "express": "^4.14.1",
     "mocha": "3.0.0",
     "nyc": "11.0.3",
+    "redis": "^2.7.1",
     "sinon": "2.3.6",
     "superagent": "3.5.2",
     "superagent-bluebird-promise": "4.2.0",
@@ -47,5 +49,7 @@
     "lint": "eslint src test",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
-  "dependencies": {}
+  "dependencies": {
+    "sha1": "1.1.1"
+  }
 }

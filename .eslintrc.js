@@ -4,13 +4,12 @@ module.exports = {
     "mocha": true
   },
   "parserOptions": {
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true,
-    },
     "sourceType": "module"
   },
   "rules": {
     "guard-for-in": [0],
-    "no-multiple-empty-lines": 1
+    "quotes": [2, "single"],
+    "no-multiple-empty-lines": 1,
+    'prefer-template': 1
   }
 }

@@ -10,4 +10,4 @@ prepublish: clean
 	babel src --out-dir dist
 
 watch:
-		mocha --require babel-register --watch
+		mocha --require babel-register --watch --timeout 5000

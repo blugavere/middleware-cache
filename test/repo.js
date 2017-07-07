@@ -3,19 +3,28 @@
 
 const uuid = require('uuid');
 
-const repo = {
-  data: {},
-  findOne(id) {
-    return Promise.resolve(this.data[id] || null);
-  },
-  create(obj) {
+class Repo {
+  constructor() {
+    this.data = {};
+    this.add = this.add.bind(this);
+    this.findOne = this.findOne.bind(this);
+  }
+  findOne(id, cb) {
+    const self = this;
+    return cb(null, self.data[id] || null);
+  }
+  add(obj, options, cb) {
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
     const id = obj._id ? obj._id : uuid.v4();
     this.data[id] = obj;
     setTimeout(() => {
       delete this.data[obj._id];
-    }, 10);
-    return Promise.resolve(obj);
+    }, options.expire || 30);
+    return cb(null, obj);
   }
-};
+}
 
-module.exports = repo;
+module.exports = new Repo();

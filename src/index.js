@@ -1,54 +1,55 @@
 'use strict';
 
+const sha1 = require('sha1');
+
+const getDefaultKey = selector => req => `cache:${selector}:${sha1(JSON.stringify(req.params))}`;
+
 module.exports = (repo, opts) => {
   opts = opts || {};
   if (!opts.namespace) {
     opts.namespace = 'cache';
   }
 
-  return function (middleware, options) {
+  return function (selector, middleware, options) {
     options = options || {};
-    const key = options.key;
-    const selector = options.selector;
+    const expire = options.expire || 500;
+    const key = options.key || getDefaultKey(selector);
 
-    if (!key || !selector) {
-      throw new Error(`Key and selector are required. ${key}, ${selector}`);
+    if (!selector || !middleware) {
+      throw new Error('Selector and middleware are required.');
     }
 
-    // return higher order middleware
     return (req, res, next) => {
       let hash = key;
       if (typeof key === 'function') {
         hash = key(req, res);
       }
-      // if(hash is string) else treat hash as selector from req/res
-      return repo.findOne(hash)
-        .then(cachedResult => {
-          console.log('cached result', cachedResult);
-          if (cachedResult) {
-            res.locals[selector] = cachedResult.value;
+      return repo.findOne(hash, (err, cachedResult) => {
+        if (err) {
+          return next(err);
+        }
+        if (cachedResult) {
+          res.locals[selector] = cachedResult.value;
 
-            if (res.locals[opts.namespace]) {
-              res.locals[opts.namespace].push(selector);
-            } else {
-              res.locals[opts.namespace] = [selector];
-            }
-
-            return next();
+          if (res.locals[opts.namespace]) {
+            res.locals[opts.namespace].push(selector);
+          } else {
+            res.locals[opts.namespace] = [selector];
           }
 
-          middleware(req, res, () => {
-            const value = res.locals[selector];
-            const obj = {
-              _id: hash,
-              value
-            };
-            console.log('mw result', obj, res.locals);
-            return repo.create(obj).then(() => {
-              next();
-            });
-          });
+          return next();
+        }
+
+        middleware(req, res, () => {
+          const value = res.locals[selector];
+          const obj = {
+            _id: hash,
+            value
+          };
+          repo.add(obj, {expire}, () => {});
+          next();
         });
+      });
     };
   };
 };

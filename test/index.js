@@ -61,7 +61,8 @@ describe('cache', () => {
     let redisRepo;
     let redisCache;
     before(done => {
-      redisRepo = new RedisRepository(redis, 'middleware');
+      const client = redis.createClient();
+      redisRepo = new RedisRepository(client, 'middleware');
       redisCache = middlewareCache(redisRepo);
       redisRepo.clear(done);
     });

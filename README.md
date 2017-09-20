@@ -33,7 +33,7 @@ const middleware = (req, res, next) => {
 };
 
 const options = {
-  key: (req, res) => `orderHistory|${req.user._id}`
+  key: (req, res) => `orderHistory|${req.user._id}`,
   expire: 1000 // the repository implements this, so for redis it is in seconds
 };
 

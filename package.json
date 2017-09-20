@@ -18,7 +18,7 @@
     "cache"
   ],
   "devDependencies": {
-    "@repositories/redis": "0.0.2",
+    "@repositories/redis": "^1.0.0",
     "babel-cli": "6.24.1",
     "babel-core": "^6.11.4",
     "babel-eslint": "^6.1.2",
@@ -46,7 +46,7 @@
   "repository": "git@github.com:blugavere/middleware-cache.git",
   "scripts": {
     "prepublish": "make prepublish",
-    "test": "make tests",
+    "test": "make test",
     "lint": "eslint src test",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },

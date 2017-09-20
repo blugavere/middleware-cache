@@ -1,7 +1,7 @@
 .PHONY: test
 
 clean:
-	rm -rf coverage dist
+	rm -rf coverage dist .nyc_output
 
 test: 
 	npm run lint

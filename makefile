@@ -5,7 +5,7 @@ clean:
 
 test: 
 	npm run lint
-	nyc mocha --timeout 5000
+	nyc mocha --timeout 5000 --exit
 
 prepublish: clean
 	babel src --out-dir dist

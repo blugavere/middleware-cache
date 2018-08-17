@@ -34,7 +34,7 @@
     "expect": "^1.20.2",
     "express": "^4.14.1",
     "mocha": "5.2.0",
-    "nyc": "11.0.3",
+    "nyc": "12.0.2",
     "redis": "^2.7.1",
     "sinon": "2.3.6",
     "superagent": "3.8.3",
@@ -45,7 +45,7 @@
     "clean": "rm -rf coverage dist .nyc_output",
     "build": "babel src --out-dir dist",
     "prepublish": "npm run clean && npm run build",
-    "test": "make test",
+    "test": "npm run lint && nyc mocha --timeout 5000 --exit",
     "lint": "eslint src test",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },

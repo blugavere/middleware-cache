@@ -1,12 +1,12 @@
+
 'use strict';
 
-require('co-mocha');
 const bluebird = require('bluebird');
 const expect = require('expect');
 const sinon = require('sinon');
 const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('superagent-bluebird-promise').agent();
+const request = require('superagent');
 const middlewareCache = require('../src');
 const RedisRepository = require('@repositories/redis');
 const redis = require('redis');
@@ -67,7 +67,7 @@ describe('cache', () => {
       redisRepo.clear(done);
     });
 
-    it('should cache in redis', function * () {
+    it('should cache in redis', async () => {
       const options = {
         selector: 'complete',
         expire: 1
@@ -77,22 +77,22 @@ describe('cache', () => {
 
       app.get('/baz', cachedMiddleware, sendLocals);
 
-      let res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      let res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.cache).toNotExist('repo should be clear at start');
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.cache).toInclude('complete');
 
-      yield bluebird.delay(1000);
+      await bluebird.delay(1000);
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.cache).toNotExist('Cache should be clear.');
     });
   });
 
   describe('in-memory', () => {
-    it('should hit a regular api just fine (and cache)', function * () {
-      const res = yield request.get('http://localhost:3000/foo').send();
+    it('should hit a regular api just fine (and cache)', async () => {
+      const res = await request.get('http://localhost:3000/foo').send();
       expect(res.body.name).toBe('foo');
     });
 
@@ -117,7 +117,7 @@ describe('cache', () => {
         });
     });
 
-    it('should cache middleware', function * () {
+    it('should cache middleware', async () => {
       const options = {
         key: 'foo',
         expire: 100
@@ -127,21 +127,21 @@ describe('cache', () => {
 
       app.get('/baz', cachedMiddleware, sendLocals);
 
-      let res = yield request.get('http://localhost:3000/baz').send();
+      let res = await request.get('http://localhost:3000/baz').send();
       expect(res.body.cache).toNotExist('cache shouldent exist at start.');
 
-      yield bluebird.delay(10);
+      await bluebird.delay(10);
 
-      res = yield request.get('http://localhost:3000/baz').send();
+      res = await request.get('http://localhost:3000/baz').send();
       expect(res.body.cache).toInclude('complete');
 
-      yield bluebird.delay(120);
+      await bluebird.delay(120);
 
-      res = yield request.get('http://localhost:3000/baz').send();
+      res = await request.get('http://localhost:3000/baz').send();
       expect(res.body.cache).toNotExist();
     });
 
-    it('should cache middleware w hash func', function * () {
+    it('should cache middleware w hash func', async () => {
       const options = {
         key: req => `foo|${req.query.foo}`
       };
@@ -150,32 +150,32 @@ describe('cache', () => {
 
       app.get('/baz', cachedMiddleware, sendLocals);
 
-      let res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      let res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.fromCache).toNotExist();
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.cache).toInclude('complete');
 
-      yield bluebird.delay(100);
+      await bluebird.delay(100);
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.fromCache).toNotExist();
     });
 
-    it('should cache middleware w default hash func', function * () {
+    it('should cache middleware w default hash func', async () => {
       const cachedMiddleware = cache(selector, middleware);
 
       app.get('/baz', cachedMiddleware, sendLocals);
 
-      let res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      let res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.fromCache).toNotExist();
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.cache).toInclude('complete');
 
-      yield bluebird.delay(100);
+      await bluebird.delay(100);
 
-      res = yield request.get('http://localhost:3000/baz?foo=bar').send();
+      res = await request.get('http://localhost:3000/baz?foo=bar').send();
       expect(res.body.fromCache).toNotExist();
     });
   });
